@@ -169,3 +169,12 @@ button[type="submit"]:hover {
         padding: 1rem;
     }
 }
+.already-submitted {
+    text-align: center;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    color: #666;
+    font-size: 1.1rem;
+    margin: 2rem 0;
+}
