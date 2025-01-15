@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const successMessage = document.getElementById('successMessage');
 
     // Google Sheet submission URL - Replace with your deployment URL
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwMmEfcWE_5C9gs1JACnnUDRWLKQNFqU39g9X_0eFNnhGFrqclWFw9b-ZH0bYddmec/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyTR5Q3MyYokZ8YLqPTC7rKiJ09FjQXMFg4IYMtBIgIuzfhb9vLlAtuwhEELkHLElCY/exec';
 
     // Star Rating Functionality
     starRating.addEventListener('click', function(e) {
