@@ -6,8 +6,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const satisfactionRating = document.getElementById('satisfactionRating');
     const successMessage = document.getElementById('successMessage');
 
-    // Google Sheet submission URL - Replace with your deployment URL
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyTR5Q3MyYokZ8YLqPTC7rKiJ09FjQXMFg4IYMtBIgIuzfhb9vLlAtuwhEELkHLElCY/exec';
+    // Check if feedback was already submitted
+    if (localStorage.getItem('feedbackSubmitted') === 'true') {
+        form.innerHTML = '<div class="already-submitted">You have already submitted feedback. Thank you for your response!</div>';
+        return;
+    }
+
+    // Google Sheet submission URL
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzEOxCH9Z2AQMUDJskSj2SCeHJIb4n5RPJg9cPH-ZggR94lBB643_sGcFw3htVtvbZI/exec';
 
     // Star Rating Functionality
     starRating.addEventListener('click', function(e) {
@@ -32,6 +38,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form Validation and Submission
     form.addEventListener('submit', function(e) {
         e.preventDefault();
+        
+        // Check if already submitted
+        if (localStorage.getItem('feedbackSubmitted') === 'true') {
+            alert('You have already submitted feedback. Thank you!');
+            return;
+        }
         
         // Reset error messages
         clearErrors();
@@ -75,8 +87,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Submit to Google Sheets
             fetch(scriptURL, { method: 'POST', body: formData })
-                .then(response => {
+                .then(response => response.text())
+                .then(text => {
+                    let response;
+                    try {
+                        response = JSON.parse(text);
+                    } catch (e) {
+                        // If response isn't JSON, treat as success for backward compatibility
+                        response = { status: 'success' };
+                    }
+
+                    if (response.status === 'error') {
+                        throw new Error(response.message || 'Submission failed');
+                    }
+                    
                     console.log('Success!', response);
+                    
+                    // Mark as submitted in localStorage
+                    localStorage.setItem('feedbackSubmitted', 'true');
                     
                     // Hide loading spinner and show success message
                     loadingSpinner.classList.add('hidden');
@@ -87,9 +115,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     Array.from(stars).forEach(star => star.classList.remove('active'));
                     satisfactionRating.value = '';
                     
-                    // Optional: Reset form display after a delay
+                    // Replace form with submitted message
                     setTimeout(() => {
-                        form.style.display = 'block';
+                        form.innerHTML = '<div class="already-submitted">You have already submitted feedback. Thank you for your response!</div>';
                         successMessage.classList.add('hidden');
                     }, 3000);
                 })
@@ -98,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Hide loading spinner and show form again
                     loadingSpinner.classList.add('hidden');
                     form.style.display = 'block';
-                    alert('There was an error submitting the form. Please try again.');
+                    alert(error.message || 'There was an error submitting the form. Please try again.');
                 });
         }
     });
